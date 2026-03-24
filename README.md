@@ -69,3 +69,4 @@ If you have an existing library of unprocessed `.ts` recordings, this script all
 2. Navigate to **Dashboard > Plugins > Chapter Segments Provider**:
    * Change the **Commercials RegEx** field to: `(?i)commercial`
 3. In your **User Profile > Playback**, ensure the **Commercial** segment action is set to **Ask to Skip**.
+4. Run a media segment scan if you're still not seeing the skip commercial button show up in **Dashboard > Scheduled Tasks > Media Segment Scan**
