@@ -56,17 +56,30 @@ If you have an existing library of unprocessed `.ts` recordings, this script all
 
 ## Installation & Configuration
 
-1. Place `post-processor.sh`, `batch-comskip.sh`, and `comskip.ini` in a secure directory (e.g., `/opt/jellyfin-dvr-comskip/`).
-2. Make the scripts executable: 
-   `sudo chmod +x /opt/jellyfin-dvr-comskip/*.sh`
-3. Give the jellyfin user ownership so it can read the INI file: 
-   `sudo chown -R jellyfin:jellyfin /opt/jellyfin-dvr-comskip/`
+The easiest way to install this is to download (clone) it directly into your server's `/opt/` directory, which is the standard location for add-on software. 
 
-### Jellyfin UI Setup
-1. Navigate to **Dashboard > Live TV > Recording Post Processing**:
+Open your terminal and run these three commands one by one:
+
+**1. Download the scripts:**
+`sudo git clone https://github.com/williamthrilliam/Jellyfin-Comskip-Post-Processor.git /opt/jellyfin-dvr-comskip`
+
+**2. Make the scripts executable:**
+`sudo chmod +x /opt/jellyfin-dvr-comskip/*.sh`
+
+**3. Give Jellyfin permission to use them:**
+`sudo chown -R jellyfin:jellyfin /opt/jellyfin-dvr-comskip/`
+
+### Jellyfin Dashboard Setup
+Now that the scripts are installed, you just need to tell Jellyfin where they are. 
+
+1. Open Jellyfin and navigate to **Dashboard > Live TV**. 
+2. Scroll down to the **Recording Post Processing** section:
    * **Post-processing application:** `/opt/jellyfin-dvr-comskip/post-processor.sh`
    * **Post-processing command line arguments:** `"{path}"`
-2. Navigate to **Dashboard > Plugins > Chapter Segments Provider**:
-   * Change the **Commercials RegEx** field to: `(?i)commercial`
-3. In your **User Profile > Playback**, ensure the **Commercial** segment action is set to **Ask to Skip**.
-4. Run a media segment scan if you're still not seeing the skip commercial button show up in **Dashboard > Scheduled Tasks > Media Segment Scan**
+   * Click **Save**.
+3. Navigate to **Dashboard > Plugins > Chapter Segments Provider**:
+   * Change the **Commercials RegEx** field to exactly this: `(?i)commercial`
+   * Click **Save**.
+4. Go to your **User Profile > Playback** settings:
+   * Ensure the **Commercial** segment action is set to **Ask to Skip** or **Skip Automatically**.
+4. Finally, run a media segment scan if you're still not seeing the skip commercial button show up in **Dashboard > Scheduled Tasks > Media Segment Scan**
