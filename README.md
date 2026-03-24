@@ -77,9 +77,6 @@ Now that the scripts are installed, you just need to tell Jellyfin where they ar
    * **Post-processing application:** `/opt/jellyfin-dvr-comskip/post-processor.sh`
    * **Post-processing command line arguments:** `"{path}"`
    * Click **Save**.
-3. Navigate to **Dashboard > Plugins > Chapter Segments Provider**:
-   * Change the **Commercials RegEx** field to exactly this: `(?i)commercial`
-   * Click **Save**.
-4. Go to your **User Profile > Playback** settings:
+3. Go to your **User Profile > Playback** settings:
    * Ensure the **Commercial** segment action is set to **Ask to Skip** or **Skip Automatically**.
 4. Finally, run a media segment scan if you're still not seeing the skip commercial button show up in **Dashboard > Scheduled Tasks > Media Segment Scan**
