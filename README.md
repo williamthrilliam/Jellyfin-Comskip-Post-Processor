@@ -1,6 +1,6 @@
-# Jellyfin OTA Comskip Post-Processor (Zero-Transcode MKV)
+# Jellyfin OTA Comskip Post-Processor
 
-A highly resilient, standalone commercial detection and post-processing pipeline for Jellyfin DVR. Designed specifically for bare-metal Ubuntu environments recording Over-The-Air (OTA) `.ts` broadcasts, this script effortlessly leverages hardware acceleration (perfect for integrated Intel GPUs) to process video without relying on CPU-heavy transcoding.
+A highly resilient, standalone commercial detection and post-processing pipeline for Jellyfin DVR. Designed specifically for bare-metal Ubuntu environments recording Over-The-Air (OTA) `.ts` broadcasts, this script effortlessly leverages hardware acceleration (perfect for integrated Intel GPUs) to process video without relying on CPU-heavy video transcoding—stream copying video while transcoding and normalizing audio to AC-3 for maximum stability.
 
 ## The Problem This Solves
 
@@ -14,16 +14,16 @@ When feeding these raw files into standard wrapper scripts (like `comchap`), you
 
 ## Script 1: `post-processor.sh` (The Deep Dive)
 
-This script replaces your `.ts` files with pristine `.mkv` files containing embedded commercial chapters. It uses a lightning-fast "Stream Copy" to bypass transcoding entirely. Here is exactly how it works under the hood:
+This script replaces your `.ts` files with pristine `.mkv` files containing embedded commercial chapters. It uses a lightning-fast video stream copy to bypass heavy video transcoding, paired with lightweight audio transcoding to AC-3 to fix broadcast audio glitches and ensure wide compatibility. Here is exactly how it works under the hood:
 
 ### 1. Atomic Subtitle Extraction & BOM Stripping
 The script creates a temporary, randomized symlink (e.g., `temp_lavfi_input_12345.ts`) in the `/tmp/` directory that points to your media file. This strips out all spaces and punctuation, bypassing FFmpeg's fragile `lavfi` filter bugs so subtitles always extract perfectly. It also utilizes `sed` to strip out hidden Byte Order Marks (BOM) that occasionally cause Jellyfin's scanner to choke on `.srt` files.
 
 ### 2. Dynamic Audio Channel Detection (The 10MB Probe)
-Instead of forcing all recordings to 2-channel stereo, the script dynamically detects the show's native audio layout. Because `.ts` audio headers are broadcast periodically, the script jumps 3 minutes into the recording (bypassing chaotic local intro commercials) and extracts a **10MB sample** using `-fs 10M`. This guarantees `ffprobe` captures the correct header and perfectly maps 5.1 surround sound or 2.channel stereo.
+Instead of forcing all recordings to 2-channel stereo, the script dynamically detects the show's native audio layout. Because `.ts` audio headers are broadcast periodically, the script jumps 3 minutes into the recording (bypassing chaotic local intro commercials) and extracts a **10MB sample** using `-fs 10M`. This guarantees `ffprobe` captures the correct header and perfectly maps 5.1 surround sound or 2-channel stereo.
 
-### 3. Stream Sanitization
-Before Comskip even touches the file, FFmpeg performs a stream copy into a hidden temporary file. During this copy, FFmpeg drops corrupted packets, repairs broken `pts`/`dts` timestamps, and strips out incompatible SCTE-35 broadcast data. 
+### 3. Stream Sanitization & Audio Transcoding
+Before Comskip even touches the file, FFmpeg sanitizes the media into a hidden temporary file. The video stream is copied directly without re-encoding (`-c:v copy`), while the audio stream is transcoded to AC-3 (`-c:a ac3`) and locked to the detected channel count. During this pass, FFmpeg drops corrupted packets, repairs broken `pts`/`dts` timestamps, and strips out incompatible SCTE-35 broadcast data. 
 
 ### 4. Hardware-Accelerated Comskip Analysis
 Because the stream is now perfectly sanitized, Comskip can safely run at maximum speed using multi-threading and hardware decoding without encountering segmentation faults. (If `comskip.ini` is accidentally deleted, the script will self-heal and auto-generate a replacement to guarantee `.ffmeta` output).
